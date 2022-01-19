@@ -3,37 +3,40 @@ const quoteText = document.getElementById('quote');
 const authorText = document.getElementById('author');
 const twitterBtn = document.getElementById('twitter');
 const newQuoteBtn = document.getElementById('new-quote');
+const loader = document.getElementById('loader');
+
 
 let apiQuotes = [];
 var local = 0;
+
+//Show Loading
+function loading() {
+    loader.hidden = false;
+    quoteContainer.hidden = true;
+}
+
+//Hide Loading
+function complete() {
+    loader.hidden = true;
+    quoteContainer.hidden = false;
+}
+
 
 // Get Quotes from API
 async function getLocalQuotes(){
     const quote = localQuotes[Math.floor(Math.random() * localQuotes.length)]
     authorText.textContent = quote.author
     quoteText.textContent = quote.text
-
 }
 async function getQuotes() {
-    try {
-        fetch("https://qvoca-bestquotes-v1.p.rapidapi.com/quote", {
-	"method": "GET",
-	"headers": {
-		"x-rapidapi-key": "SIGN-UP-FOR-KEY",
-		"x-rapidapi-host": "qvoca-bestquotes-v1.p.rapidapi.com"
-	}
-})
-.then(response => {
-	console.log(response);
-})
-.catch(err => {
-	console.error(err);
-});
-        apiQuotes = await response.json();
-        // quote = apiQuotes.contents.quotes[0]
-        console.log(apiQuotes);
+    loading();
+    try{
+        loading();
+        const apiUrl = "https://type.fit/api/quotes";
+        const response = await fetch(apiUrl);
+        apiQuotes = await response.json(); 
+        quote = apiQuotes[Math.floor(Math.random() * localQuotes.length)]
         //Check if Author Field is blank
-        
         if (!quote.author){
             authorText.textContent = "Unknown";
         }
@@ -47,10 +50,11 @@ async function getQuotes() {
         else{
             quoteText.classList.remove('long-quote');
         }
-        quoteText.textContent = quote.quote;
-
-    } catch (error) {
-        // Catch error
+        quoteText.textContent = quote.text;
+        complete();
+    }
+    catch{
+        console.log("could not fetch quote")
     }
 }
 
@@ -62,9 +66,4 @@ function tweetQuote(){
 newQuoteBtn.addEventListener('click', getQuotes)
 twitterBtn.addEventListener('click',tweetQuote)
 
-if (local){
-    getLocalQuotes();
-}
-else{
-    getQuotes();
-}
+getQuotes();
